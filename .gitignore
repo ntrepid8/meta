@@ -1,1 +1,5 @@
 target
+
+# Include Cargo.lock for now, we may add it back later
+#  depending on how the project is structured.
+Cargo.lock
