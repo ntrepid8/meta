@@ -48,7 +48,7 @@ fn create_db() {
     let db = env.get_default_db(DbFlags::empty()).unwrap();
     let txn = env.new_transaction().unwrap();
 
-	{
+    {
         let db = txn.bind(&db);
 
         let key = "hello";
@@ -60,12 +60,12 @@ fn create_db() {
 
 
         println!("from lmdb: key={} v={}", key, v);
-	}
+    }
     txn.commit().unwrap();
 }
 
 fn main() {
-	create_db();
+    create_db();
     println!("Hello, world!");
 }
 
