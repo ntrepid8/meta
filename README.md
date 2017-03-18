@@ -22,4 +22,4 @@ sharing improvements with the community.
 
 If your use case requires a different license, alternative licenses are
 available for a fee along with an annual support contract. Please email
-for details.
+josh.austin@gmail.com for details.
