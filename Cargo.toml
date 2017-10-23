@@ -3,6 +3,14 @@ name = "meta"
 version = "0.1.0"
 authors = ["Josh Austin <josh.austin@gmail.com>"]
 
+[lib]
+name = "libmeta"
+path = "src/lib.rs"
+
+[[bin]]
+name = "meta"
+path = "src/main.rs"
+
 [dependencies]
-lmdb-rs = "0.7.2"
+lmdb-rs = "0.7.6"
 

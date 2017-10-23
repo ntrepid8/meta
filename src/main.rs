@@ -14,59 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-extern crate lmdb_rs;
-
-use std::env;
-use std::fs::{self};
-use std::path::{PathBuf};
-use std::sync::atomic::{AtomicUsize, ATOMIC_USIZE_INIT, Ordering};
-use std::sync::{Once, ONCE_INIT};
-use std::thread;
-
-//use libc::c_int;
-
-use lmdb_rs::core::{self, EnvBuilder, DbFlags, MdbValue, EnvNoMemInit, EnvNoMetaSync, KeyExists};
-//use ffi::MDB_val;
-//use traits::FromMdbValue;
-
-const USER_DIR: u32 = 0o777;
-
-fn create_db() {
-    let path = PathBuf::from("/tmp/meta_lmdb_test");
-    let mut env = EnvBuilder::new()
-        .max_readers(33)
-        .open(&path, USER_DIR).unwrap();
-
-    env.sync(true).unwrap(); 
-
-    let test_flags = EnvNoMemInit | EnvNoMetaSync;
-
-    env.set_flags(test_flags, true).unwrap();
-    let new_flags = env.get_flags().unwrap();
-    assert!((new_flags & test_flags) == test_flags, "Get flags != set flags");
-
-    let db = env.get_default_db(DbFlags::empty()).unwrap();
-    let txn = env.new_transaction().unwrap();
-
-    {
-        let db = txn.bind(&db);
-
-        let key = "hello";
-        let value = "world";
-
-        db.set(&key, &value).unwrap();
-
-        let v = db.get::<&str>(&key).unwrap();
-
-
-        println!("from lmdb: key={} v={}", key, v);
-    }
-    txn.commit().unwrap();
-}
+extern crate libmeta;
 
 fn main() {
-    create_db();
+    // meta::create_db();
     println!("Hello, world!");
+
+    let env = libmeta::open_env();
+    let db = libmeta::open_db_default(&env);
+    let key = "hello";
+    let value = "world";
+    libmeta::set(&db, &env, key, value);
+    println!("set lmdb: key={} val={}", key, value);
+    let val = libmeta::get(&db, &env, key);
+    println!("get lmdb: key={} v={}", key, val);
 }
-
-
