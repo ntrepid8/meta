@@ -1,6 +1,21 @@
 # Meta
 
-Welcome to the meta-server project.
+Welcome to the meta-server project. The goal of this project is to build
+a key/value server that can operate in a clustered group.
+
+Current goals:
+
+- provide [gRPC](https://grpc.io/) interface
+- provide GET/POST/PUT/DELETE web interface
+- implement full auth layer
+- provide ability to define search indices
+- provide streaming/generator style response cursors
+- provide automatic sharding within a cluster
+- provide automatic network partition handling
+- provide good write performance
+- provide optimized read performance
+- provide ACID compliant transactions
+- provide Multiversion concurrency control MVCC
 
 ## Notes
 
