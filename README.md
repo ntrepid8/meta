@@ -32,3 +32,9 @@ sharing improvements with the community.
 If your use case requires a different license, alternative licenses are
 available for a fee along with an annual support contract. Please email
 josh.austin@gmail.com for details.
+
+## Contributing
+
+If you would like to contribute to this project you will need to complete the
+Contributor Agreement. You can request a copy from the project maintainers by
+email.
