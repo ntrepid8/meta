@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+mod mmdb;
 extern crate lmdb_rs;
 use std::path::{PathBuf};
 use lmdb_rs::core::{EnvBuilder, DbFlags, MdbValue, EnvNoMemInit, EnvNoMetaSync, KeyExists, Environment, DbHandle};

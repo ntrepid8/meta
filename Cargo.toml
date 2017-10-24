@@ -13,4 +13,6 @@ path = "src/main.rs"
 
 [dependencies]
 lmdb-rs = "0.7.6"
-
+memmap = "0.5.2"
+sysconf = "0.3.1"
+rand = "0.3.17"
