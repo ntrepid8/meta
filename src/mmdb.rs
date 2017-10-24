@@ -117,11 +117,13 @@ mod test {
             // read page_one
             let bytes: &[u8] = get_page(&db, 0);
             assert_eq!(b"0123456789", &bytes[0..10]);
+            assert_eq!(4096, bytes.len());
         }
         {
             // read page_two
             let bytes: &[u8] = get_page(&db, 1);
             assert_eq!(b"9876543210", &bytes[0..10]);
+            assert_eq!(4096, bytes.len());
         }
         
     }
