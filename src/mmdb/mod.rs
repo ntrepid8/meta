@@ -16,10 +16,10 @@
 
 mod mmdb_env;
 
-extern crate sysconf;
 extern crate rand;
+extern crate sysconf;
 
-use std::path::{PathBuf};
+use std::path::PathBuf;
 // use std::fs::File;
 use std::io::prelude::*;
 
@@ -30,8 +30,7 @@ use std::env;
 use std::io::{self, Write};
 use std::fs::File;
 
-static LOREM_IPSUM: &'static str =
-"Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+static LOREM_IPSUM: &'static str = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
 tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
 quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
 consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
@@ -46,7 +45,7 @@ use std::slice;
 
 // use rand::ThreadRng;
 
-pub fn read_page(){
+pub fn read_page() {
     let path = PathBuf::from("/tmp/meta_mmdb_test.dat");
     let file = File::open(path).expect("failed to open the file");
 }
@@ -60,7 +59,7 @@ pub fn open_db(path: &str) -> Mmap {
     file_mmap
 }
 
-pub fn get_page(db: &Mmap, page_no: isize) ->  &[u8] {
+pub fn get_page(db: &Mmap, page_no: isize) -> &[u8] {
     // get page size
     let pagesize = sysconf::page::pagesize() as isize;
     // offset for read start
@@ -84,15 +83,10 @@ mod test {
     fn test_open_db() {
         let path = Path::new("/tmp/meta_mmdb_test.dat");
         let display = path.display();
-        let rstr: String = rand::thread_rng()
-            .gen_ascii_chars()
-            .take(4096)
-            .collect();
+        let rstr: String = rand::thread_rng().gen_ascii_chars().take(4096).collect();
         // Open a file in write-only mode, returns `io::Result<File>`
         let mut file = match File::create(&path) {
-            Err(why) => panic!("couldn't create {}: {}",
-                            display,
-                            why.description()),
+            Err(why) => panic!("couldn't create {}: {}", display, why.description()),
             Ok(file) => file,
         };
         // configure pages
@@ -108,10 +102,7 @@ mod test {
         // rstr_bytes.push_str(&rstr);
         // Write` the `LOREM_IPSUM` string to `file`, returns `io::Result<()>`
         match file.write_all(&pages.into_bytes()) {
-            Err(why) => {
-                panic!("couldn't write to {}: {}", display,
-                                                why.description())
-            },
+            Err(why) => panic!("couldn't write to {}: {}", display, why.description()),
             Ok(_) => println!("successfully wrote to {}", display),
         }
         let db = open_db("/tmp/meta_mmdb_test.dat");
@@ -127,7 +118,6 @@ mod test {
             assert_eq!(b"9876543210", &bytes[0..10]);
             assert_eq!(4096, bytes.len());
         }
-        
     }
 
     #[test]

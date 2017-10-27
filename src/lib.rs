@@ -16,8 +16,9 @@
 
 mod mmdb;
 extern crate lmdb_rs;
-use std::path::{PathBuf};
-use lmdb_rs::core::{EnvBuilder, DbFlags, MdbValue, EnvNoMemInit, EnvNoMetaSync, KeyExists, Environment, DbHandle};
+use std::path::PathBuf;
+use lmdb_rs::core::{DbFlags, DbHandle, EnvBuilder, EnvNoMemInit, EnvNoMetaSync, Environment,
+                    KeyExists, MdbValue};
 
 const USER_DIR: u32 = 0o777;
 
@@ -27,7 +28,7 @@ const USER_DIR: u32 = 0o777;
 //         .max_readers(33)
 //         .open(&path, USER_DIR).unwrap();
 
-//     env.sync(true).unwrap(); 
+//     env.sync(true).unwrap();
 
 //     let test_flags = EnvNoMemInit | EnvNoMetaSync;
 
@@ -58,15 +59,19 @@ pub fn open_env() -> Environment {
     let path = PathBuf::from("/tmp/meta_lmdb_test");
     let mut env = EnvBuilder::new()
         .max_readers(33)
-        .open(&path, USER_DIR).unwrap();
+        .open(&path, USER_DIR)
+        .unwrap();
 
-    env.sync(true).unwrap(); 
+    env.sync(true).unwrap();
 
     let test_flags = EnvNoMemInit | EnvNoMetaSync;
 
     env.set_flags(test_flags, true).unwrap();
     let new_flags = env.get_flags().unwrap();
-    assert!((new_flags & test_flags) == test_flags, "Get flags != set flags");
+    assert!(
+        (new_flags & test_flags) == test_flags,
+        "Get flags != set flags"
+    );
     env
 }
 
