@@ -77,14 +77,17 @@ pub fn open_db_default(db_env: &Environment) -> DbHandle {
 
 pub fn set(db: &DbHandle, env: &Environment, key: &str, value: &str) {
     let txn = env.new_transaction().unwrap();
-    let db_txn = txn.bind(&db);
-    db_txn.set(&key, &value).unwrap();
+    {
+        let db_txn = txn.bind(&db);
+        db_txn.set(&key, &value).unwrap();
+    }
+    txn.commit().unwrap();
 }
 
 pub fn get(db: &DbHandle, env: &Environment, key: &str) -> String {
-    let txn = env.new_transaction().unwrap();
-    let db_txn = txn.bind(&db);
-    let val = db_txn.get::<&str>(&key).unwrap();
+    let reader = env.get_reader().unwrap();
+    let db_reader = reader.bind(&db);
+    let val = db_reader.get::<&str>(&key).unwrap();
     val.to_string()
 }
 
@@ -92,9 +95,14 @@ pub fn get(db: &DbHandle, env: &Environment, key: &str) -> String {
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::fs;
 
     #[test]
     fn test_open_db() {
+        // ensure the file exists
+        {
+            fs::create_dir("/tmp/meta_lmdb_test");
+        }
         let env = open_env();
         let db = open_db_default(&env);
         let key = "hello";
