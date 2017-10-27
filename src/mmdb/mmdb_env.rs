@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+// TODO: update types of struct properties (i32 is just a placeholder)
+
 struct MmdbEnv {
 	// data file descriptor
 	me_fd: i32,
