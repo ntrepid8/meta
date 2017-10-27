@@ -39,6 +39,10 @@ Some possible data models would be:
 - https://en.wikipedia.org/wiki/Mmap
 - https://docs.rs/memmap/0.5.2/x86_64-unknown-linux-gnu/memmap/struct.Mmap.html
 
+This example of how to implement a new data type from scratch is useful as
+an example for mapping structs directly onto allocated memory.
+- https://doc.rust-lang.org/stable/nomicon/vec.html
+
 ## License
 
 The project is currently licensed under the GPLv3 license. This encourages
