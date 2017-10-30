@@ -16,7 +16,7 @@
 
 // TODO: update types of struct properties (i32 is just a placeholder)
 
-struct MmdbEnv {
+struct MmdbEnvironment {
     // data file descriptor
     me_fd: i32,
     // lock file descriptor
