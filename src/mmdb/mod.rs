@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-mod mmdb_env;
+mod mmdb_environment;
 
 extern crate rand;
 extern crate sysconf;
