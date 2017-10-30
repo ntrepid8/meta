@@ -15,12 +15,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // TODO: update types of struct properties (i32 is just a placeholder)
-use std::fs::File;
+use std::fs::{self, File, OpenOptions};
 use std::path::Path;
 
 struct MmdbEnvironment {
     // data file descriptor
     data_file: File,
+    // lock file descriptor
+    lock_file: File,
     // configuration
     config: MmdbEnvironmentConfig,
 }
@@ -29,6 +31,8 @@ struct MmdbEnvironment {
 struct MmdbEnvironmentConfig {
     // data file path
     data_file_path: String,
+    // lock file path
+    lock_file_path: String,
     // lock file descriptor
     me_lock_fd: i32,
     // meta page file descriptor
@@ -82,15 +86,33 @@ struct MmdbEnvironmentConfig {
 impl MmdbEnvironment {
     // construct a new MmdbEnvironment
     pub fn open(path: &str) -> Result<MmdbEnvironment, &'static str> {
-        let db_file_path = Path::new(&path);
-        let mut file = match File::open(&db_file_path) {
-            Err(e) => return Err("error opening file"),
-            Ok(f) => f,
-        };
+        // format the path
+        let db_path = Path::new(&path);
+        let data_file_path = db_path.join("data.mmdb");
+        let lock_file_path = db_path.join("lock.mmdb");
+        // ensure the directories are created
+        fs::create_dir_all(db_path).unwrap();
+        // open the data file (create if does not exist)
+        let data_file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(&data_file_path)
+            .unwrap();
+        // open the data file (create if does not exist)
+        let lock_file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(&lock_file_path)
+            .unwrap();
+        // create new MmdbEnvironment
         let new_env = MmdbEnvironment {
-            data_file: file,
+            data_file: data_file,
+            lock_file: lock_file,
             config: MmdbEnvironmentConfig {
-                data_file_path: path.to_string(),
+                data_file_path: data_file_path.to_string_lossy().into_owned(),
+                lock_file_path: lock_file_path.to_string_lossy().into_owned(),
                 ..Default::default()
             }
         };
@@ -100,6 +122,11 @@ impl MmdbEnvironment {
     // return data_file_path
     pub fn get_data_file_path(&self) -> &str {
         &self.config.data_file_path
+    }
+
+    // return lock_file_path
+    pub fn get_lock_file_path(&self) -> &str {
+        &self.config.lock_file_path
     }
 
 }
@@ -113,11 +140,11 @@ mod test {
     #[test]
     fn test_open() {
         let rnd_str: String = rand::thread_rng().gen_ascii_chars().take(6).collect();
-        let path = format!("/tmp/meta_mmdb_environment_test_{}.dat", rnd_str);
-        {
-            File::create(&path);
-        }
+        let path = format!("/tmp/meta_mmdb_environment_test_{}", rnd_str);
+        let data_file_path = format!("{}/data.mmdb", path);
+        let lock_file_path = format!("{}/lock.mmdb", path);
         let env = MmdbEnvironment::open(&path).unwrap();
-        assert_eq!(path, env.get_data_file_path());
+        assert_eq!(data_file_path, env.get_data_file_path());
+        assert_eq!(lock_file_path, env.get_lock_file_path());
     }
 }
