@@ -15,6 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 mod mmdb_environment;
+mod mmdb_pages;
 
 extern crate rand;
 extern crate sysconf;
