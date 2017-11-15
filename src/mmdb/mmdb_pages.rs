@@ -18,7 +18,7 @@
  * see: https://doc.rust-lang.org/nomicon/vec.html
  */
 
-use memmap::{Mmap, Protection};
+use memmap::{Mmap, MmapOptions};
 
 use std::ptr::{Unique, self};
 
@@ -152,10 +152,11 @@ mod test {
         }
 
         // read via memmap
-        let file_mmap = Mmap::open_path(path, Protection::Read).unwrap();
+        let map_file = File::open(path).unwrap();
+        let file_mmap = unsafe {MmapOptions::new().map(&map_file).unwrap()};
         {
             // offset pointer by page_offset (offset 0 for single page)
-            let ptr = file_mmap.ptr();
+            let ptr = file_mmap.as_ptr();
             let ptr_mem_addr = format!("{:p}", ptr);
             println!("ptr: {:p}", ptr);
             let ptr_start = unsafe {ptr.offset(0)};

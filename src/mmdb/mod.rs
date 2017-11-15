@@ -25,7 +25,7 @@ use std::path::PathBuf;
 use std::io::prelude::*;
 
 
-use memmap::{Mmap, Protection};
+use memmap::{Mmap, MmapOptions};
 
 use std::env;
 use std::io::{self, Write};
@@ -56,8 +56,12 @@ pub fn get_pagesize() -> usize {
 }
 
 pub fn open_db(path: &str) -> Mmap {
-    let file_mmap = Mmap::open_path(path, Protection::Read).unwrap();
-    file_mmap
+    let file = File::open(path).unwrap();
+    // let file_mmap = Mmap::open_path(path, Protection::Read).unwrap();
+    // file_mmap
+    unsafe {
+        MmapOptions::new().map(&file).unwrap()
+    }
 }
 
 pub fn get_page(db: &Mmap, page_no: isize) -> &[u8] {
@@ -68,7 +72,7 @@ pub fn get_page(db: &Mmap, page_no: isize) -> &[u8] {
     // read bytes
     let bytes = unsafe {
         // offset pointer by page_offset
-        let ptr_start = db.ptr().offset(page_offset);
+        let ptr_start = db.as_ptr().offset(page_offset);
         // slice just one page
         slice::from_raw_parts(ptr_start, pagesize as usize)
     };
