@@ -18,6 +18,8 @@
  * see: https://doc.rust-lang.org/nomicon/vec.html
  */
 
+use memmap::{Mmap, Protection};
+
 use std::ptr::{Unique, self};
 
 struct MmdbPage {
@@ -42,9 +44,19 @@ impl MmdbPage {
         }
     }
 
-    pub fn from_raw(ptr: *const u8) -> MmdbPage {
-        let new_page: MmdbPage = unsafe { ptr::read(ptr as *const MmdbPage) };
-        new_page
+    pub fn from_raw<'a, MmdbPage>(ptr: *const u8) -> &'a MmdbPage {
+        // see: https://doc.rust-lang.org/book/first-edition/raw-pointers.html
+        // see: https://doc.rust-lang.org/std/mem/fn.transmute.html
+        // see: https://doc.rust-lang.org/std/primitive.pointer.html
+        unsafe {
+            // this is so unsafe
+            // coerce the pointer into the correct type
+            let page_ptr = ptr as *const MmdbPage;
+            // dereference the pointer into a reference (safer than transmute)
+            let ref_page: &MmdbPage = &*page_ptr;
+            // return the result
+            ref_page
+        }
     }
 }
 
@@ -105,11 +117,63 @@ mod test {
             .unwrap();
         page_file.read_to_end(&mut buffer);
         // transmute to struct
-        let mmdb_page_read = MmdbPage::from_raw(buffer.as_ptr());
+        let mmdb_page_read: &MmdbPage = MmdbPage::from_raw(buffer.as_ptr());
         // verify values
         assert_eq!(1, mmdb_page_read.page_no);
         assert_eq!(2, mmdb_page_read.index_upper);
         assert_eq!(3, mmdb_page_read.index_lower);
         assert_eq!(4, mmdb_page_read.overflow_pages);
+    }
+
+    #[test]
+    fn test_read_page_with_mmap() {
+        let rnd_str: String = rand::thread_rng().gen_ascii_chars().take(6).collect();
+        let path = format!("/tmp/meta_mmdb_test_serialize_page_{}.dat", rnd_str);
+        let mmdb_page = MmdbPage{
+            page_no: 1,
+            index_upper: 2,
+            index_lower: 3,
+            overflow_pages: 4,
+            data: [0; 4080],
+        };
+        let mmdb_page_bytes = mmdb_page.as_bytes();
+
+        // write the page
+        {
+            // open the data file (create if does not exist)
+            let mut page_file = OpenOptions::new()
+                .read(true)
+                .write(true)
+                .create(true)
+                .open(&path)
+                .unwrap();
+            // write the buffer
+            page_file.write_all(mmdb_page_bytes);
+        }
+
+        // read via memmap
+        let file_mmap = Mmap::open_path(path, Protection::Read).unwrap();
+        {
+            // offset pointer by page_offset (offset 0 for single page)
+            let ptr = file_mmap.ptr();
+            let ptr_mem_addr = format!("{:p}", ptr);
+            println!("ptr: {:p}", ptr);
+            let ptr_start = unsafe {ptr.offset(0)};
+            let ptr_start_mem_addr = format!("{:p}", ptr_start);
+            assert_eq!(ptr_mem_addr, ptr_start_mem_addr);
+            println!("ptr_start: {:p}", ptr_start);
+            // transmute to struct (not sure why type can't be inferred here)
+            let mmdb_page_read: &MmdbPage = MmdbPage::from_raw(ptr_start);
+            let mmdb_page_read_mem_addr = format!("{:p}", mmdb_page_read);
+            // verify memory address of new page struct matches the original pointers
+            assert_eq!(ptr_mem_addr, mmdb_page_read_mem_addr);
+            assert_eq!(ptr_start_mem_addr, mmdb_page_read_mem_addr);
+            // verify values
+            assert_eq!(1, mmdb_page_read.page_no);
+            assert_eq!(2, mmdb_page_read.index_upper);
+            assert_eq!(3, mmdb_page_read.index_lower);
+            assert_eq!(4, mmdb_page_read.overflow_pages);
+            println!("mmdb_page_read: {:p}", mmdb_page_read);
+        }
     }
 }
