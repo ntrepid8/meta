@@ -24,8 +24,8 @@ use std::path::PathBuf;
 // use std::fs::File;
 use std::io::prelude::*;
 
-extern crate memmap;
-use self::memmap::{Mmap, Protection};
+
+use memmap::{Mmap, Protection};
 
 use std::env;
 use std::io::{self, Write};

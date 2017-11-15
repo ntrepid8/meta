@@ -21,6 +21,9 @@ use std::path::PathBuf;
 use lmdb_rs::core::{DbFlags, DbHandle, EnvBuilder, EnvNoMemInit, EnvNoMetaSync, Environment,
                     KeyExists, MdbValue};
 
+
+extern crate memmap;
+
 const USER_DIR: u32 = 0o777;
 
 // pub fn create_db() {
