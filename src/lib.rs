@@ -15,6 +15,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #![feature(unique)]
+#![feature(ptr_internals)]
 pub mod mmdb;
 extern crate lmdb_rs;
 use std::path::PathBuf;
